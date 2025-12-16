@@ -1,7 +1,9 @@
 # ShopVRG - PC Components Store - DDD Lab
 
 ## Echipa
-- Vrabie George
+- Simedre Patricia Teodora
+- Rusu Andrei Ioan
+- Plesa Valentin Gabriel
 
 ## Domeniul Ales
 **E-Commerce pentru Componente de Calculator** - Sistem de gestionare a comenzilor pentru un magazin online de componente PC.
