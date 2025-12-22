@@ -2,13 +2,15 @@ namespace ShopVRG.Events;
 
 /// <summary>
 /// Event topic constants for async communication
+/// Maps to Azure Service Bus topics
 /// </summary>
 public static class EventTopics
 {
-    public const string OrderPlaced = "orders/placed";
-    public const string OrderFailed = "orders/failed";
-    public const string PaymentProcessed = "payments/processed";
-    public const string PaymentFailed = "payments/failed";
-    public const string OrderShipped = "shipping/shipped";
-    public const string ShippingFailed = "shipping/failed";
+    // Azure Service Bus topic names (must match topics created in Azure)
+    public const string OrderPlaced = "order-placed";
+    public const string OrderFailed = "order-placed"; // Same topic, different event type
+    public const string PaymentProcessed = "payment-processed";
+    public const string PaymentFailed = "payment-processed"; // Same topic, different event type
+    public const string OrderShipped = "order-shipped";
+    public const string ShippingFailed = "order-shipped"; // Same topic, different event type
 }

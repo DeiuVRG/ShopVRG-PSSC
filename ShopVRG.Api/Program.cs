@@ -20,12 +20,22 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
-// Register event sender (using in-memory for local development)
-// For production with Azure Service Bus, use:
-// builder.Services.AddSingleton<IEventSender>(sp =>
-//     new ServiceBusEventSender(builder.Configuration["ServiceBus:ConnectionString"]!));
-builder.Services.AddSingleton<InMemoryEventSender>();
-builder.Services.AddSingleton<IEventSender>(sp => sp.GetRequiredService<InMemoryEventSender>());
+// Register event sender - Azure Service Bus or InMemory fallback
+var useAzureServiceBus = builder.Configuration.GetValue<bool>("ServiceBus:UseAzure");
+var serviceBusConnectionString = builder.Configuration["ServiceBus:ConnectionString"];
+
+if (useAzureServiceBus && !string.IsNullOrEmpty(serviceBusConnectionString))
+{
+    Console.WriteLine("✓ Using Azure Service Bus for event messaging");
+    builder.Services.AddSingleton<IEventSender>(sp =>
+        new ServiceBusEventSender(serviceBusConnectionString));
+}
+else
+{
+    Console.WriteLine("⚠ Using InMemory event sender (development mode)");
+    builder.Services.AddSingleton<InMemoryEventSender>();
+    builder.Services.AddSingleton<IEventSender>(sp => sp.GetRequiredService<InMemoryEventSender>());
+}
 
 // Configure Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
