@@ -10,10 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container
 builder.Services.AddControllers();
 
-// Configure SQLite database
-var dbPath = Path.Combine(builder.Environment.ContentRootPath, "shopvrg.db");
+// Configure Azure SQL Database
+var connectionString = builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING");
 builder.Services.AddDbContext<ShopDbContext>(options =>
-    options.UseSqlite($"Data Source={dbPath}"));
+    options.UseSqlServer(connectionString));
 
 // Register repositories
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
@@ -72,11 +72,10 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ShopDbContext>();
 
-    // Delete and recreate for clean state (development only)
-    db.Database.EnsureDeleted();
+    // Create database if it doesn't exist (Azure SQL)
     db.Database.EnsureCreated();
 
-    Console.WriteLine($"Database location: {dbPath}");
+    Console.WriteLine($"Connected to Azure SQL Database: {builder.Configuration["Azure:SqlDatabase"]}");
     Console.WriteLine($"Products in database: {db.Products.Count()}");
 }
 
@@ -89,7 +88,7 @@ app.UseSwaggerUI(c =>
 });
 
 app.UseCors("AllowAll");
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection(); // Disabled for local HTTP development
 app.UseAuthorization();
 app.MapControllers();
 
