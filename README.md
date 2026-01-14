@@ -1,4 +1,4 @@
-# ShopVRG - PC Components Store - DDD Lab
+# ShopVRG - PC Components E-Commerce Platform
 
 ## Echipa
 - Simedre Patricia Teodora
@@ -6,17 +6,37 @@
 - Plesa Valentin Gabriel
 
 ## Domeniul Ales
-**E-Commerce pentru Componente de Calculator** - Sistem de gestionare a comenzilor pentru un magazin online de componente PC.
+**E-Commerce pentru Componente de Calculator** - Platformă completă pentru gestionarea comenzilor într-un magazin online de componente PC.
 
 ## Descriere
-ShopVRG este un backend pentru un magazin de componente de calculator implementat folosind principiile Domain-Driven Design (DDD). Sistemul gestioneaza intreg ciclul de viata al unei comenzi: plasare comanda, procesare plata si expediere.
+ShopVRG este o platformă e-commerce completă cu backend .NET 9 și frontend React/TypeScript pentru un magazin de componente de calculator implementat folosind principiile Domain-Driven Design (DDD). Sistemul gestionează întreg ciclul de viață al unei comenzi: plasare comandă, procesare plată și expediere, cu interfață web modernă pentru utilizatori.
 
-Proiectul respecta:
+Proiectul respectă:
 - **Principiile SOLID**
-- **Cele 4 principii OOP** (Encapsulare, Mostenire, Polimorfism, Abstractie)
+- **Cele 4 principii OOP** (Encapsulare, Moștenire, Polimorfism, Abstractizare)
 - **Domain-Driven Design** cu Value Objects, Entities, Aggregates
-- **State Machine Pattern** pentru tranzitii de stare
-- **Transform Pattern** pentru operatii pe entitati
+- **State Machine Pattern** pentru tranziții de stare
+- **Transform Pattern** pentru operații pe entități
+- **Event-Driven Architecture** cu Azure Service Bus
+
+## 🚀 Componente Proiect
+
+### Backend (.NET 9)
+- REST API cu ASP.NET Core
+- Business logic în Domain layer
+- Event-driven cu Azure Service Bus
+- Repository Pattern pentru persistență
+
+### Frontend (React + TypeScript)
+- Single Page Application cu React 18
+- State management cu Zustand
+- Routing cu React Router v6
+- Design modern și responsive
+
+### Database
+- Azure SQL Database
+- Schema completă cu constraints și indexes
+- Seed data pentru testare
 
 ## Bounded Contexts Identificate
 

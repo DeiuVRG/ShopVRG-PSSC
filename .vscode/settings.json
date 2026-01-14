@@ -1,0 +1,15 @@
+{
+  "mssql.connections": [
+    {
+      "server": "server-incercare.database.windows.net",
+      "database": "ShopVRG-db",
+      "user": "CloudSA7e00abbb",
+      "password": "",
+      "authenticationType": "SqlLogin",
+      "profileName": "ShopVRG Azure SQL",
+      "encrypt": "Mandatory",
+      "trustServerCertificate": false,
+      "connectTimeout": 30
+    }
+  ]
+}

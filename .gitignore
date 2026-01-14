@@ -47,6 +47,12 @@ Thumbs.db
 .env
 .env.local
 appsettings.Development.json
+appsettings.*.local.json
+*.local.json
+
+# Database scripts with credentials
+view-db.sh
+database-queries.sql
 
 # Claude Code
 .claude/
