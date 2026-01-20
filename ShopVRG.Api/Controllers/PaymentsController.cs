@@ -161,4 +161,64 @@ public class PaymentsController : ControllerBase
         // Generate a transaction reference
         return $"TXN-{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid().ToString()[..8].ToUpperInvariant()}";
     }
+
+    /// <summary>
+    /// Confirm a payment through the simulated payment processor
+    /// This endpoint is called after user confirms payment in the payment processor modal
+    /// </summary>
+    [HttpPost("confirm")]
+    public async Task<ActionResult<ApiResponse<PaymentConfirmationDto>>> ConfirmPayment([FromBody] ConfirmPaymentRequest request)
+    {
+        try
+        {
+            // Parse OrderId from string
+            if (!OrderId.TryCreate(request.OrderId, out var orderId, out var error) || orderId == null)
+            {
+                return BadRequest(new ApiResponse<PaymentConfirmationDto>
+                {
+                    Success = false,
+                    Errors = [error ?? "Invalid OrderId"],
+                    Message = "The OrderId format is invalid"
+                });
+            }
+
+            // Validate that the order exists
+            if (!await _orderRepository.ExistsAsync(orderId))
+            {
+                return NotFound(new ApiResponse<PaymentConfirmationDto>
+                {
+                    Success = false,
+                    Errors = ["Order not found"],
+                    Message = "The specified order does not exist"
+                });
+            }
+
+            _logger.LogInformation("Payment confirmation initiated for order {OrderId}", request.OrderId);
+
+            // Return confirmation response
+            var confirmationDto = new PaymentConfirmationDto
+            {
+                OrderId = request.OrderId,
+                Status = "Confirmed",
+                ConfirmedAt = DateTime.UtcNow,
+                Message = "Payment processor has simulated the payment confirmation. Ready to proceed with shipment."
+            };
+
+            return Ok(new ApiResponse<PaymentConfirmationDto>
+            {
+                Success = true,
+                Data = confirmationDto,
+                Message = "Payment confirmed successfully"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error confirming payment");
+            return StatusCode(500, new ApiResponse<PaymentConfirmationDto>
+            {
+                Success = false,
+                Errors = [ex.Message]
+            });
+        }
+    }
 }

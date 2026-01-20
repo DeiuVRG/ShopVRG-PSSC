@@ -133,3 +133,22 @@ public class ShipmentDto
     public DateTime ShippedAt { get; set; }
     public DateTime EstimatedDelivery { get; set; }
 }
+
+/// <summary>
+/// Request to confirm a payment through the simulated payment processor
+/// </summary>
+public class ConfirmPaymentRequest
+{
+    public string OrderId { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// Payment confirmation response from simulated payment processor
+/// </summary>
+public class PaymentConfirmationDto
+{
+    public string OrderId { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
+    public DateTime ConfirmedAt { get; set; }
+    public string Message { get; set; } = string.Empty;
+}
