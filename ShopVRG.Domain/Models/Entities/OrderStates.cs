@@ -173,6 +173,48 @@ public sealed record PlacedOrderLine(
     Price LineTotal);
 
 /// <summary>
+/// Pending payment state - order created but awaiting payment confirmation
+/// </summary>
+public sealed record PendingOrder : IOrder
+{
+    public OrderId OrderId { get; }
+    public CustomerName CustomerName { get; }
+    public CustomerEmail CustomerEmail { get; }
+    public ShippingAddress ShippingAddress { get; }
+    public IReadOnlyList<PendingOrderLine> OrderLines { get; }
+    public Price TotalPrice { get; }
+    public DateTime CreatedAt { get; }
+
+    internal PendingOrder(
+        OrderId orderId,
+        CustomerName customerName,
+        CustomerEmail customerEmail,
+        ShippingAddress shippingAddress,
+        IEnumerable<PendingOrderLine> orderLines,
+        Price totalPrice,
+        DateTime createdAt)
+    {
+        OrderId = orderId;
+        CustomerName = customerName;
+        CustomerEmail = customerEmail;
+        ShippingAddress = shippingAddress;
+        OrderLines = orderLines.ToList().AsReadOnly();
+        TotalPrice = totalPrice;
+        CreatedAt = createdAt;
+    }
+}
+
+/// <summary>
+/// Pending order line
+/// </summary>
+public sealed record PendingOrderLine(
+    ProductCode ProductCode,
+    ProductName ProductName,
+    Quantity Quantity,
+    Price UnitPrice,
+    Price LineTotal);
+
+/// <summary>
 /// Invalid state - order processing failed
 /// </summary>
 public sealed record InvalidOrder : IOrder

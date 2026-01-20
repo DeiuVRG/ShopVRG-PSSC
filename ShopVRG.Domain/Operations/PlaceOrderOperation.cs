@@ -24,9 +24,9 @@ internal sealed class PlaceOrderOperation : OrderOperation
             return new InvalidOrder(["Failed to persist order to database"]);
         }
 
-        // 2. Convert to placed order
-        var placedLines = order.OrderLines
-            .Select(l => new PlacedOrderLine(
+        // 2. Convert to pending order (awaiting payment confirmation)
+        var pendingLines = order.OrderLines
+            .Select(l => new PendingOrderLine(
                 l.ProductCode,
                 l.ProductName,
                 l.Quantity,
@@ -34,14 +34,13 @@ internal sealed class PlaceOrderOperation : OrderOperation
                 l.LineTotal))
             .ToList();
 
-        return new PlacedOrder(
+        return new PendingOrder(
             order.OrderId,
             order.CustomerName,
             order.CustomerEmail,
             order.ShippingAddress,
-            placedLines,
+            pendingLines,
             order.TotalPrice,
-            order.CreatedAt,
-            DateTime.UtcNow);
+            order.CreatedAt);
     }
 }

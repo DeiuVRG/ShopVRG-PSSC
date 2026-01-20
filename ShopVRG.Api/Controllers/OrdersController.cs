@@ -74,7 +74,46 @@ public class OrdersController : ControllerBase
             );
 
             // Handle result
-            if (orderEvent is OrderPlacedEvent placed)
+            if (orderEvent is OrderPendingPaymentEvent pending)
+            {
+                _logger.LogInformation("Order {OrderId} created and awaiting payment", pending.OrderId);
+
+                // Don't publish event yet - will be published after payment is confirmed
+                // await _eventSender.SendAsync(EventTopics.OrderPlaced, ...);
+
+                var dto = new OrderDto
+                {
+                    OrderId = pending.OrderId.ToString(),
+                    CustomerName = pending.CustomerName.Value,
+                    CustomerEmail = pending.CustomerEmail.Value,
+                    ShippingAddress = new AddressDto
+                    {
+                        Street = pending.ShippingAddress.Street,
+                        City = pending.ShippingAddress.City,
+                        PostalCode = pending.ShippingAddress.PostalCode,
+                        Country = pending.ShippingAddress.Country
+                    },
+                    OrderLines = pending.OrderLines.Select(l => new Models.OrderLineDto
+                    {
+                        ProductCode = l.ProductCode,
+                        ProductName = l.ProductName,
+                        Quantity = l.Quantity,
+                        UnitPrice = l.UnitPrice,
+                        LineTotal = l.LineTotal
+                    }).ToList(),
+                    TotalPrice = pending.TotalPrice.Value,
+                    Status = "Pending",
+                    CreatedAt = pending.CreatedAt
+                };
+
+                return Ok(new ApiResponse<OrderDto>
+                {
+                    Success = true,
+                    Data = dto,
+                    Message = $"Order {pending.OrderId} created successfully. Awaiting payment confirmation."
+                });
+            }
+            else if (orderEvent is OrderPlacedEvent placed)
             {
                 _logger.LogInformation("Order {OrderId} placed successfully", placed.OrderId);
 

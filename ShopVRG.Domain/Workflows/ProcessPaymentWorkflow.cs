@@ -9,6 +9,7 @@ using ShopVRG.Domain.Operations;
 /// <summary>
 /// Workflow for processing a payment
 /// Composes operations: Validate → Process
+/// After successful payment, publishes OrderPlaced event (previously delayed from order creation)
 /// </summary>
 public sealed class ProcessPaymentWorkflow
 {

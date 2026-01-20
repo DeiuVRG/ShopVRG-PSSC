@@ -78,7 +78,7 @@ public class PaymentsController : ControllerBase
                 _logger.LogInformation("Payment {PaymentId} processed for order {OrderId}",
                     processed.PaymentId, processed.OrderId);
 
-                // Send async event
+                // Send PaymentProcessed event
                 await _eventSender.SendAsync(EventTopics.PaymentProcessed, new
                 {
                     PaymentId = processed.PaymentId.ToString(),
@@ -86,6 +86,18 @@ public class PaymentsController : ControllerBase
                     Amount = processed.Amount.Value,
                     TransactionReference = processed.TransactionReference,
                     ProcessedAt = processed.ProcessedAt
+                });
+
+                // Now publish OrderPlaced event (delayed from order creation until payment confirmation)
+                _logger.LogInformation("Publishing OrderPlaced event for order {OrderId} after payment confirmation",
+                    processed.OrderId);
+
+                await _eventSender.SendAsync(EventTopics.OrderPlaced, new
+                {
+                    OrderId = processed.OrderId.ToString(),
+                    PaymentId = processed.PaymentId.ToString(),
+                    Amount = processed.Amount.Value,
+                    ConfirmedAt = processed.ProcessedAt
                 });
 
                 var dto = new PaymentDto
