@@ -1,0 +1,81 @@
+.contact-page {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.contact-header {
+  padding: 40px 0;
+}
+
+.team-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.team-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(233, 69, 96, 0.2);
+}
+
+.team-avatar {
+  transition: transform 0.3s ease;
+}
+
+.team-card:hover .team-avatar {
+  transform: scale(1.1);
+}
+
+.location-info {
+  transition: transform 0.3s ease;
+}
+
+.location-info:hover {
+  transform: translateY(-3px);
+}
+
+.info-item {
+  transition: transform 0.2s ease;
+}
+
+.info-item:hover {
+  transform: translateX(5px);
+}
+
+.map-container {
+  transition: box-shadow 0.3s ease;
+}
+
+.map-container:hover {
+  box-shadow: 0 10px 30px rgba(233, 69, 96, 0.2);
+}
+
+.course-section {
+  transition: transform 0.3s ease;
+}
+
+.course-section:hover {
+  transform: translateY(-3px);
+}
+
+@media (max-width: 768px) {
+  .contact-page {
+    padding: 15px;
+  }
+
+  .contact-header h1 {
+    font-size: 2rem;
+  }
+
+  .team-card {
+    padding: 20px !important;
+  }
+
+  .team-avatar {
+    width: 80px !important;
+    height: 80px !important;
+  }
+
+  .team-avatar i {
+    font-size: 32px !important;
+  }
+}
