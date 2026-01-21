@@ -94,19 +94,20 @@ const CheckoutPage = () => {
     setLoading(true);
     setError(null);
 
-    try {
-      // Step 1: Place Order
-      const orderRequest: PlaceOrderRequest = {
-        ...shippingForm,
-        orderLines: items.map((item) => ({
-          productCode: item.product.code,
-          productName: item.product.name,
-          quantity: item.quantity,
-          unitPrice: item.product.price,
-          lineTotal: item.product.price * item.quantity,
-        })),
-      };
+    // Build order request outside try block so it's accessible in catch
+    const orderRequest: PlaceOrderRequest = {
+      ...shippingForm,
+      orderLines: items.map((item) => ({
+        productCode: item.product.code,
+        productName: item.product.name,
+        quantity: item.quantity,
+        unitPrice: item.product.price,
+        lineTotal: item.product.price * item.quantity,
+      })),
+    };
 
+    try {
+      console.log('Placing order with request:', JSON.stringify(orderRequest, null, 2));
       const orderResponse = await apiClient.placeOrder(orderRequest);
       setOrder({
         orderId: orderResponse.orderId,
@@ -120,16 +121,17 @@ const CheckoutPage = () => {
       // Store pending data and show payment processor modal
       setPendingOrderData({
         orderId: orderResponse.orderId,
-        totalPrice: orderResponse.totalPrice, // Use order total from backend, not with tax
+        totalPrice: orderResponse.totalPrice,
         cardHolderName: paymentForm.cardHolderName,
       });
       setShowPaymentModal(true);
       setLoading(false);
     } catch (err: any) {
-      setError(
-        err.response?.data?.message || 'Failed to place order. Please try again.'
-      );
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to place order. Please try again.';
+      const errorDetails = err.response?.data?.errors?.join(', ') || '';
+      setError(errorDetails ? `${errorMessage}: ${errorDetails}` : errorMessage);
       console.error('Order placement error:', err);
+      console.error('Order request was:', orderRequest);
       setLoading(false);
     }
   };

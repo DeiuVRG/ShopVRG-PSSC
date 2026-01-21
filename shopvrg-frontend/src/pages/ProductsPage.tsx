@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useProductStore } from '../store/productStore';
 import { useCartStore } from '../store/cartStore';
 import './ProductsPage.css';
@@ -8,6 +9,10 @@ const ProductsPage = () => {
   const { addItem } = useCartStore();
   const [selectedQuantity, setSelectedQuantity] = useState<{ [key: string]: number }>({});
   const [addedProducts, setAddedProducts] = useState<string[]>([]);
+  const [searchParams] = useSearchParams();
+
+  const categoryFilter = searchParams.get('category') || '';
+  const searchQuery = searchParams.get('search') || '';
 
   const handleAddToCart = (productCode: string) => {
     const product = products.find((p) => p.code === productCode);
@@ -27,87 +32,141 @@ const ProductsPage = () => {
     return (
       <div className="loading">
         <div className="spinner"></div>
-        <p>Loading products...</p>
+        <p>Se incarca produsele...</p>
       </div>
     );
   }
 
   if (error) {
-    return <div className="error">{error}</div>;
+    return <div className="alert alert-error">{error}</div>;
   }
 
-  const categories = Array.from(new Set(products.map((p) => p.category)));
+  // Filter products based on category and search
+  let filteredProducts = products;
+
+  if (categoryFilter) {
+    filteredProducts = filteredProducts.filter((p) =>
+      p.category.toLowerCase() === categoryFilter.toLowerCase()
+    );
+  }
+
+  if (searchQuery) {
+    const query = searchQuery.toLowerCase();
+    filteredProducts = filteredProducts.filter((p) =>
+      p.name.toLowerCase().includes(query) ||
+      p.description.toLowerCase().includes(query) ||
+      p.code.toLowerCase().includes(query)
+    );
+  }
+
+  // Get page title based on filters
+  const getPageTitle = () => {
+    if (searchQuery) return `Rezultate pentru "${searchQuery}"`;
+    if (categoryFilter) return categoryFilter;
+    return 'Toate Produsele';
+  };
 
   return (
     <div className="products-page">
-      <h1>PC Components Catalog</h1>
-      <p className="subtitle">Premium Computer Parts for Gaming & Workstations</p>
+      {/* Section Header */}
+      <div className="section-header">
+        <h1 className="section-title">
+          <i className="bi bi-grid-fill"></i>
+          {getPageTitle()}
+        </h1>
+        <span className="products-count">
+          {filteredProducts.length} produse
+        </span>
+      </div>
 
-      {categories.map((category) => (
-        <div key={category} className="category-section mb-5">
-          <h2 className="category-title">{category}</h2>
-          <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-3 g-md-4">
-            {products
-              .filter((p) => p.category === category)
-              .map((product) => (
-                <div key={product.code} className="col">
-                  <div className="product-card h-100">
-                    <div className="product-header">
-                      <span className="product-code">{product.code}</span>
-                      {product.stock < 10 && (
-                        <span className="low-stock">Low Stock</span>
-                      )}
+      {filteredProducts.length === 0 ? (
+        <div className="no-products">
+          <i className="bi bi-search"></i>
+          <h3>Niciun produs gasit</h3>
+          <p>Incercati o alta cautare sau categorie.</p>
+        </div>
+      ) : (
+        <div className="products-grid">
+          {filteredProducts.map((product) => (
+            <div key={product.code} className="product-card">
+              {/* Product Image Placeholder */}
+              <div className="product-image">
+                <i className="bi bi-cpu"></i>
+                {product.stock < 10 && product.stock > 0 && (
+                  <span className="product-badge">Stoc Limitat</span>
+                )}
+                {product.stock === 0 && (
+                  <span className="product-badge out-of-stock-badge">Stoc Epuizat</span>
+                )}
+              </div>
+
+              {/* Product Info */}
+              <div className="product-info">
+                <span className="product-category">{product.category}</span>
+                <h3 className="product-name">{product.name}</h3>
+                <p className="product-description">{product.description}</p>
+
+                <div className="product-footer">
+                  <div className="price-stock-row">
+                    <div className="product-price">
+                      {product.price.toFixed(2)} <span className="currency">RON</span>
                     </div>
-                    <h3 className="product-name">{product.name}</h3>
-                    <p className="product-description">{product.description}</p>
-                    <div className="product-footer mt-auto">
-                      <div className="product-price">
-                        <span className="price">${product.price.toFixed(2)}</span>
-                        <span className="stock">
-                          {product.stock} in stock
-                        </span>
-                      </div>
-                      <div className="quantity-selector">
-                        <input
-                          type="number"
-                          min="1"
-                          max={product.stock}
-                          value={selectedQuantity[product.code] || 1}
-                          onChange={(e) =>
-                            setSelectedQuantity({
-                              ...selectedQuantity,
-                              [product.code]: parseInt(e.target.value) || 1,
-                            })
-                          }
-                          className="quantity-input form-control"
-                        />
-                      </div>
+                    <span className={`product-stock ${product.stock === 0 ? 'out-of-stock' : ''}`}>
+                      <i className={`bi ${product.stock > 0 ? 'bi-check-circle-fill' : 'bi-x-circle-fill'}`}></i>
+                      {product.stock > 0 ? `${product.stock} in stoc` : 'Indisponibil'}
+                    </span>
+                  </div>
+
+                  {/* Quantity & Add to Cart */}
+                  <div className="add-to-cart-row">
+                    <div className="quantity-selector">
                       <button
-                        className={`btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 ${
-                          addedProducts.includes(product.code) ? 'added' : ''
-                        }`}
-                        onClick={() => handleAddToCart(product.code)}
+                        className="qty-btn"
+                        onClick={() => setSelectedQuantity({
+                          ...selectedQuantity,
+                          [product.code]: Math.max(1, (selectedQuantity[product.code] || 1) - 1)
+                        })}
                         disabled={product.stock === 0}
                       >
-                        {addedProducts.includes(product.code) ? (
-                          <>
-                            <i className="bi bi-check-circle-fill"></i>
-                            <span>Added to Cart</span>
-                          </>
-                        ) : (
-                          <>
-                            <i className="bi bi-cart-plus-fill"></i>
-                            <span>Add to Cart</span>
-                          </>
-                        )}
+                        -
+                      </button>
+                      <span className="qty-value">{selectedQuantity[product.code] || 1}</span>
+                      <button
+                        className="qty-btn"
+                        onClick={() => setSelectedQuantity({
+                          ...selectedQuantity,
+                          [product.code]: Math.min(product.stock, (selectedQuantity[product.code] || 1) + 1)
+                        })}
+                        disabled={product.stock === 0}
+                      >
+                        +
                       </button>
                     </div>
+
+                    <button
+                      className={`add-to-cart-btn ${addedProducts.includes(product.code) ? 'added' : ''}`}
+                      onClick={() => handleAddToCart(product.code)}
+                      disabled={product.stock === 0}
+                    >
+                      {addedProducts.includes(product.code) ? (
+                        <>
+                          <i className="bi bi-check-circle-fill"></i>
+                          Adaugat
+                        </>
+                      ) : (
+                        <>
+                          <i className="bi bi-cart-plus-fill"></i>
+                          Adauga
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
-              ))}
-          </div>
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
+      )}
     </div>
   );
 };
