@@ -11,13 +11,19 @@
 ## Descriere
 ShopVRG este o platformă e-commerce completă cu backend .NET 9 și frontend React/TypeScript pentru un magazin de componente de calculator implementat folosind principiile Domain-Driven Design (DDD). Sistemul gestionează întreg ciclul de viață al unei comenzi: plasare comandă, procesare plată și expediere, cu interfață web modernă pentru utilizatori.
 
-Proiectul respectă:
+### Principii și Pattern-uri Implementate
 - **Principiile SOLID**
 - **Cele 4 principii OOP** (Encapsulare, Moștenire, Polimorfism, Abstractizare)
 - **Domain-Driven Design** cu Value Objects, Entities, Aggregates
 - **State Machine Pattern** pentru tranziții de stare
 - **Transform Pattern** pentru operații pe entități
+- **Railway-Oriented Programming (ROP)** pentru gestionarea erorilor
 - **Event-Driven Architecture** cu Azure Service Bus
+
+### Documentație Suplimentară
+- 📊 [Diagrama Workflows](DIAGRAMA_WORKFLOWS.md) - Diagrame complete cu stări, tranziții și evenimente
+- 🔧 [Ghid Setup](SETUP.md) - Instrucțiuni de instalare și configurare
+- ✅ [Verificare Backend](VERIFICARE_BACKEND.md) - Documentație testare API
 
 ## 🚀 Componente Proiect
 
@@ -116,31 +122,67 @@ Proiectul respectă:
 
 ```
 ShopVRG_Hub/
-├── ShopVRG.sln
-├── ShopVRG.Domain/           # Domain Layer
+├── ShopVRG.sln                    # Solution file
+├── README.md                      # Acest fișier
+├── SETUP.md                       # Ghid de instalare
+├── DIAGRAMA_WORKFLOWS.md          # Diagrame workflows și stări
+├── VERIFICARE_BACKEND.md          # Documentație testare
+│
+├── ShopVRG.Domain/                # 🎯 Domain Layer (Business Logic)
 │   ├── Models/
-│   │   ├── ValueObjects/     # Value Objects
-│   │   ├── Entities/         # Entity States
-│   │   ├── Commands/         # Commands
-│   │   └── Events/           # Domain Events
-│   ├── Operations/           # Transform Operations
-│   ├── Workflows/            # Business Workflows
-│   └── Repositories/         # Repository Interfaces
-├── ShopVRG.Data/             # Infrastructure Layer
-│   ├── ShopDbContext.cs      # EF Core DbContext
-│   ├── Models/               # Data Entities
-│   └── Repositories/         # Repository Implementations
-├── ShopVRG.Events/           # Event Contracts
-├── ShopVRG.Events.ServiceBus/# Azure Service Bus + InMemory
-└── ShopVRG.Api/              # API Layer
-    ├── Controllers/          # REST Controllers
-    ├── Models/               # DTOs
-    └── Program.cs            # Entry Point
+│   │   ├── ValueObjects/          # Value Objects (ProductCode, Price, etc.)
+│   │   ├── Entities/              # Entity States (OrderStates, PaymentStates, etc.)
+│   │   ├── Commands/              # Commands (PlaceOrderCommand, etc.)
+│   │   └── Events/                # Domain Events
+│   ├── Operations/                # Transform Operations (7 operații)
+│   ├── Workflows/                 # Business Workflows (3 workflows)
+│   └── Repositories/              # Repository Interfaces
+│
+├── ShopVRG.Data/                  # 💾 Infrastructure Layer
+│   ├── ShopDbContext.cs           # EF Core DbContext
+│   ├── Models/                    # Data Entities
+│   └── Repositories/              # Repository Implementations
+│
+├── ShopVRG.Events/                # 📨 Event Contracts
+│   ├── IEventSender.cs            # Interface pentru event publishing
+│   └── EventTopics.cs             # Topic definitions
+│
+├── ShopVRG.Events.ServiceBus/     # ☁️ Messaging Implementation
+│   ├── ServiceBusEventSender.cs   # Azure Service Bus implementation
+│   └── InMemoryEventSender.cs     # In-memory pentru development
+│
+├── ShopVRG.Api/                   # 🌐 API Layer
+│   ├── Controllers/               # REST Controllers (4 controllere)
+│   ├── Models/                    # DTOs
+│   └── Program.cs                 # Entry Point
+│
+├── ShopVRG.Tests/                 # 🧪 Test Layer
+│   ├── Unit/                      # Unit Tests
+│   │   ├── ValueObjects/          # Teste Value Objects
+│   │   ├── Operations/            # Teste Operations
+│   │   ├── Workflows/             # Teste Workflows
+│   │   └── StateMachines/         # Teste State Machines
+│   ├── Integration/               # Integration Tests
+│   ├── Mocks/                     # Mock objects
+│   ├── Stubs/                     # Stub implementations
+│   └── Fakes/                     # Fake objects
+│
+└── shopvrg-frontend/              # 🖥️ Frontend (React + TypeScript)
+    ├── src/
+    │   ├── components/            # React Components
+    │   ├── pages/                 # Page Components
+    │   ├── api/                   # API Client
+    │   └── store/                 # Zustand State Management
+    └── public/                    # Static assets
 ```
 
 ## Rulare
 
+### Backend (.NET 9)
 ```bash
+# Restore dependencies
+dotnet restore
+
 # Compile
 dotnet build
 
@@ -150,6 +192,35 @@ dotnet run --project ShopVRG.Api
 # API va fi disponibil la:
 # Swagger UI: http://localhost:5000
 # API Base: http://localhost:5000/api
+```
+
+### Frontend (React)
+```bash
+# Navigate to frontend
+cd shopvrg-frontend
+
+# Install dependencies
+npm install
+
+# Start development server
+npm start
+
+# Frontend va fi disponibil la: http://localhost:3000
+```
+
+### Rulare Teste
+```bash
+# Toate testele
+dotnet test
+
+# Doar unit tests
+dotnet test --filter "Category=Unit"
+
+# Doar integration tests
+dotnet test --filter "Category=Integration"
+
+# Cu coverage report
+dotnet test --collect:"XPlat Code Coverage"
 ```
 
 ## API Endpoints
@@ -212,11 +283,26 @@ curl -X POST http://localhost:5000/api/shipping \
 
 ## Tehnologii Utilizate
 
+### Backend
 - **.NET 9** - Framework principal
+- **ASP.NET Core 9** - Web API
 - **Entity Framework Core 9** - ORM
-- **SQLite** - Baza de date locala (pregatit pentru Azure SQL)
-- **Swagger/OpenAPI** - Documentatie API
-- **Azure Service Bus** - Comunicare asincrona (pregatit)
+- **Azure SQL Database** - Baza de date în cloud
+- **Azure Service Bus** - Comunicare asincronă pentru evenimente
+- **Swagger/OpenAPI** - Documentație API interactivă
+
+### Frontend
+- **React 18** - UI Library
+- **TypeScript** - Type safety
+- **Zustand** - State management
+- **React Router v6** - Routing
+- **Axios** - HTTP Client
+- **Tailwind CSS** - Styling
+
+### Testing
+- **xUnit** - Test framework
+- **Moq** - Mocking library
+- **FluentAssertions** - Assertion library
 
 ## Lectii Invatate
 
@@ -272,6 +358,46 @@ curl -X POST http://localhost:5000/api/shipping \
 | CARGUS | Cargus | 2 |
 | FAN_COURIER | Fan Courier | 1 |
 | SAMEDAY | Sameday | 1 |
+
+## Diagrama Workflows (Rezumat)
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        🛒 PLACE ORDER WORKFLOW                          │
+│  UnvalidatedOrder → ValidatedOrder → StockCheckedOrder → PendingOrder   │
+│                                                    ↓                    │
+│                                      OrderPendingPaymentEvent           │
+└─────────────────────────────────────────────────────────────────────────┘
+                                       ↓
+┌─────────────────────────────────────────────────────────────────────────┐
+│                      💳 PROCESS PAYMENT WORKFLOW                        │
+│       UnvalidatedPayment → ValidatedPayment → ProcessedPayment          │
+│                                                    ↓                    │
+│                              PaymentProcessedEvent + OrderPlacedEvent   │
+└─────────────────────────────────────────────────────────────────────────┘
+                                       ↓
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        📦 SHIP ORDER WORKFLOW                           │
+│        UnvalidatedShipping → ValidatedShipping → ShippedOrder           │
+│                                                    ↓                    │
+│                                          OrderShippedEvent              │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+> 📊 Vezi [DIAGRAMA_WORKFLOWS.md](DIAGRAMA_WORKFLOWS.md) pentru diagrame Mermaid complete.
+
+## Statistici Proiect
+
+| Metric | Valoare |
+|--------|---------|
+| Workflows | 3 |
+| Operații (Transform) | 7 |
+| Stări totale | 14 (11 normale + 3 eroare) |
+| Evenimente | 6 (4 success + 2 failure) |
+| Value Objects | 10 |
+| Bounded Contexts | 3 |
+| Produse în DB | 83 |
+| Curieri suportați | 8 |
 
 ## License
 

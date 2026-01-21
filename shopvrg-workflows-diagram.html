@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopVRG - Workflows, States & Events Diagram</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+        .subtitle {
+            text-align: center;
+            color: #a0a0a0;
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+        .diagram-container {
+            background: #fff;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow-x: auto;
+        }
+        .mermaid {
+            display: flex;
+            justify-content: center;
+        }
+        .legend-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+        .legend-color {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+        .input-state { background: #3498db; }
+        .valid-state { background: #27ae60; }
+        .invalid-state { background: #e74c3c; }
+        .operation { background: #f39c12; }
+        .event { background: #9b59b6; }
+        .eventbus { background: #1abc9c; }
+        
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .info-card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid;
+        }
+        .info-card.order { border-color: #3498db; }
+        .info-card.payment { border-color: #27ae60; }
+        .info-card.shipping { border-color: #9b59b6; }
+        .info-card h3 {
+            color: #fff;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        .info-card ul {
+            list-style: none;
+            color: #ccc;
+        }
+        .info-card li {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .info-card li:last-child {
+            border-bottom: none;
+        }
+        .state-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-right: 5px;
+        }
+        .state-badge.input { background: #3498db; color: #fff; }
+        .state-badge.valid { background: #27ae60; color: #fff; }
+        .state-badge.invalid { background: #e74c3c; color: #fff; }
+        .event-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            background: #9b59b6;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛒 ShopVRG - Workflows, States & Events</h1>
+        <p class="subtitle">Domain-Driven Design Architecture - PSSC Project</p>
+        
+        <div class="diagram-container">
+            <pre class="mermaid">
+flowchart TB
+    subgraph PlaceOrderWorkflow["📦 PLACE ORDER WORKFLOW"]
+        direction TB
+        
+        UO[/"🔵 UnvalidatedOrder<br/>───────────<br/>Raw API data"/]
+        
+        VOp{{"🟡 ValidateOrderOperation"}}
+        
+        VO["🟢 ValidatedOrder<br/>───────────<br/>Value Objects created"]
+        
+        IO1["🔴 InvalidOrder<br/>───────────<br/>ValidationErrors"]
+        
+        CSOp{{"🟡 CheckStockOperation"}}
+        
+        SCO["🟢 StockCheckedOrder<br/>───────────<br/>Stock reserved"]
+        
+        IO2["🔴 InvalidOrder<br/>───────────<br/>Stock unavailable"]
+        
+        POp{{"🟡 PlaceOrderOperation"}}
+        
+        PO["🟢 PlacedOrder<br/>───────────<br/>Persisted to DB"]
+        
+        PendO["🟢 PendingOrder<br/>───────────<br/>Awaiting payment"]
+        
+        E1(["📨 OrderPlacedEvent"])
+        E2(["📨 OrderPlacementFailedEvent"])
+        E3(["📨 OrderPendingPaymentEvent"])
+        
+        UO --> VOp
+        VOp -->|"Valid"| VO
+        VOp -->|"Invalid"| IO1
+        IO1 --> E2
+        
+        VO --> CSOp
+        CSOp -->|"Stock OK"| SCO
+        CSOp -->|"No Stock"| IO2
+        IO2 --> E2
+        
+        SCO --> POp
+        POp -->|"Success"| PO
+        POp -->|"Pending"| PendO
+        
+        PO --> E1
+        PendO --> E3
+    end
+
+    subgraph ProcessPaymentWorkflow["💳 PROCESS PAYMENT WORKFLOW"]
+        direction TB
+        
+        UP[/"🔵 UnvalidatedPayment<br/>───────────<br/>Card details"/]
+        
+        VPOp{{"🟡 ValidatePaymentOperation"}}
+        
+        VP["🟢 ValidatedPayment<br/>───────────<br/>Card masked"]
+        
+        IP["🔴 InvalidPayment<br/>───────────<br/>Card invalid"]
+        
+        PPOp{{"🟡 ProcessPaymentOperation"}}
+        
+        PP["🟢 ProcessedPayment<br/>───────────<br/>TransactionRef"]
+        
+        FP["🔴 InvalidPayment<br/>───────────<br/>Payment declined"]
+        
+        E4(["📨 PaymentProcessedEvent"])
+        E5(["📨 PaymentFailedEvent"])
+        
+        UP --> VPOp
+        VPOp -->|"Valid"| VP
+        VPOp -->|"Invalid"| IP
+        IP --> E5
+        
+        VP --> PPOp
+        PPOp -->|"Approved"| PP
+        PPOp -->|"Declined"| FP
+        
+        PP --> E4
+        FP --> E5
+    end
+
+    subgraph ShipOrderWorkflow["🚚 SHIP ORDER WORKFLOW"]
+        direction TB
+        
+        US[/"🔵 UnvalidatedShipping<br/>───────────<br/>Shipping request"/]
+        
+        VSOp{{"🟡 ValidateShippingOperation"}}
+        
+        VS["🟢 ValidatedShipping<br/>───────────<br/>Tracking generated"]
+        
+        IS["🔴 InvalidShipping<br/>───────────<br/>Order not paid"]
+        
+        SOOp{{"🟡 ShipOrderOperation"}}
+        
+        SO["🟢 ShippedOrder<br/>───────────<br/>EstimatedDelivery"]
+        
+        FS["🔴 InvalidShipping<br/>───────────<br/>Carrier error"]
+        
+        E6(["📨 OrderShippedEvent"])
+        E7(["📨 ShippingFailedEvent"])
+        
+        US --> VSOp
+        VSOp -->|"Valid"| VS
+        VSOp -->|"Invalid"| IS
+        IS --> E7
+        
+        VS --> SOOp
+        SOOp -->|"Success"| SO
+        SOOp -->|"Failed"| FS
+        
+        SO --> E6
+        FS --> E7
+    end
+
+    subgraph EventBus["📬 AZURE SERVICE BUS"]
+        EB["Event Publisher"]
+    end
+
+    E1 -.->|"Publish"| EB
+    E2 -.->|"Publish"| EB
+    E3 -.->|"Publish"| EB
+    E4 -.->|"Publish"| EB
+    E5 -.->|"Publish"| EB
+    E6 -.->|"Publish"| EB
+    E7 -.->|"Publish"| EB
+
+    E1 ==>|"Triggers"| UP
+    E4 ==>|"Triggers"| US
+
+    classDef inputState fill:#3498db,stroke:#2980b9,color:#fff,stroke-width:2px
+    classDef validState fill:#27ae60,stroke:#1e8449,color:#fff,stroke-width:2px
+    classDef invalidState fill:#e74c3c,stroke:#c0392b,color:#fff,stroke-width:2px
+    classDef operation fill:#f39c12,stroke:#d68910,color:#fff,stroke-width:2px
+    classDef event fill:#9b59b6,stroke:#7d3c98,color:#fff,stroke-width:2px
+    classDef eventbus fill:#1abc9c,stroke:#16a085,color:#fff,stroke-width:2px
+    
+    class UO,UP,US inputState
+    class VO,SCO,PO,PendO,VP,PP,VS,SO validState
+    class IO1,IO2,IP,FP,IS,FS invalidState
+    class VOp,CSOp,POp,VPOp,PPOp,VSOp,SOOp operation
+    class E1,E2,E3,E4,E5,E6,E7 event
+    class EB eventbus
+            </pre>
+        </div>
+        
+        <div class="legend-section">
+            <div class="legend-item">
+                <div class="legend-color input-state"></div>
+                <span>🔵 Input State (Unvalidated)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color valid-state"></div>
+                <span>🟢 Valid State (Success path)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color invalid-state"></div>
+                <span>🔴 Invalid State (Error path)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color operation"></div>
+                <span>🟡 Operation (Transform)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color event"></div>
+                <span>📨 Domain Event</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color eventbus"></div>
+                <span>📬 Event Bus (Azure Service Bus)</span>
+            </div>
+        </div>
+
+        <div class="info-cards">
+            <div class="info-card order">
+                <h3>📦 Place Order Workflow</h3>
+                <ul>
+                    <li><span class="state-badge input">INPUT</span> UnvalidatedOrder</li>
+                    <li><span class="state-badge valid">VALID</span> ValidatedOrder → StockCheckedOrder → PlacedOrder</li>
+                    <li><span class="state-badge valid">VALID</span> PendingOrder (awaiting payment)</li>
+                    <li><span class="state-badge invalid">ERROR</span> InvalidOrder</li>
+                    <li><span class="event-badge">EVENT</span> OrderPlacedEvent</li>
+                    <li><span class="event-badge">EVENT</span> OrderPendingPaymentEvent</li>
+                    <li><span class="event-badge">EVENT</span> OrderPlacementFailedEvent</li>
+                </ul>
+            </div>
+            
+            <div class="info-card payment">
+                <h3>💳 Process Payment Workflow</h3>
+                <ul>
+                    <li><span class="state-badge input">INPUT</span> UnvalidatedPayment</li>
+                    <li><span class="state-badge valid">VALID</span> ValidatedPayment → ProcessedPayment</li>
+                    <li><span class="state-badge invalid">ERROR</span> InvalidPayment</li>
+                    <li><span class="event-badge">EVENT</span> PaymentProcessedEvent</li>
+                    <li><span class="event-badge">EVENT</span> PaymentFailedEvent</li>
+                </ul>
+            </div>
+            
+            <div class="info-card shipping">
+                <h3>🚚 Ship Order Workflow</h3>
+                <ul>
+                    <li><span class="state-badge input">INPUT</span> UnvalidatedShipping</li>
+                    <li><span class="state-badge valid">VALID</span> ValidatedShipping → ShippedOrder</li>
+                    <li><span class="state-badge invalid">ERROR</span> InvalidShipping</li>
+                    <li><span class="event-badge">EVENT</span> OrderShippedEvent</li>
+                    <li><span class="event-badge">EVENT</span> ShippingFailedEvent</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            },
+            securityLevel: 'loose'
+        });
+    </script>
+</body>
+</html>
