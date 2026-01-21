@@ -391,3 +391,66 @@
   color: #b0b0b0;
   font-size: 1.1rem;
 }
+
+/* Bootstrap overrides for checkout page */
+.checkout-page .card {
+  background: #222222;
+  border: 1px solid #333333 !important;
+}
+
+.checkout-page .card-body {
+  color: #ffffff;
+}
+
+.checkout-page .card-header {
+  border-bottom: 1px solid #333333;
+}
+
+.checkout-page .text-primary {
+  color: #ed1c24 !important;
+}
+
+.checkout-page .text-muted {
+  color: #888888 !important;
+}
+
+.checkout-page .border-bottom {
+  border-color: #333333 !important;
+}
+
+.checkout-page .border-top {
+  border-color: #333333 !important;
+}
+
+.checkout-page .fw-semibold,
+.checkout-page .fw-bold {
+  color: #ffffff;
+}
+
+.checkout-page .alert-info {
+  background-color: rgba(237, 28, 36, 0.1);
+  border-color: rgba(237, 28, 36, 0.3);
+  color: #ed1c24;
+  border-left: 4px solid #ed1c24;
+}
+
+.checkout-page .form-control {
+  background: #1a1a1a;
+  border: 1px solid #333333;
+  color: #ffffff;
+}
+
+.checkout-page .form-control:focus {
+  background: #1a1a1a;
+  border-color: #ed1c24;
+  box-shadow: 0 0 0 0.25rem rgba(237, 28, 36, 0.25);
+  color: #ffffff;
+}
+
+.checkout-page .form-control::placeholder {
+  color: #666666;
+}
+
+.checkout-page .form-label {
+  color: #b0b0b0;
+}

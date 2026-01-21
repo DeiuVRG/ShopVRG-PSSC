@@ -4,13 +4,23 @@
   margin: 0 auto;
 }
 
+.confirmation-page .error {
+  background: rgba(220, 53, 69, 0.1);
+  border-left: 4px solid #dc3545;
+  color: #dc3545;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
 .success-header {
   text-align: center;
   margin-bottom: 3rem;
   padding: 2rem;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: #222222;
+  border-radius: 12px;
+  border: 1px solid #333333;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .success-icon {
@@ -30,26 +40,27 @@
 
 .success-header h1 {
   font-size: 2rem;
-  color: #51cf66;
+  color: #ed1c24;
   margin: 0.5rem 0;
 }
 
 .success-header p {
   font-size: 1.1rem;
-  color: #666;
+  color: #b0b0b0;
   margin: 0;
 }
 
 .confirmation-content {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: #222222;
+  border-radius: 12px;
+  border: 1px solid #333333;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   overflow: hidden;
 }
 
 .section {
   padding: 2rem;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #333333;
 }
 
 .section:last-child {
@@ -57,11 +68,11 @@
 }
 
 .section h2 {
-  color: #333;
+  color: #ffffff;
   margin-top: 0;
   margin-bottom: 1.5rem;
   font-size: 1.4rem;
-  border-bottom: 2px solid #667eea;
+  border-bottom: 2px solid #ed1c24;
   padding-bottom: 0.5rem;
 }
 
@@ -79,7 +90,7 @@
 
 .label {
   font-size: 0.85rem;
-  color: #999;
+  color: #888888;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -87,22 +98,23 @@
 
 .value {
   font-size: 1.1rem;
-  color: #333;
+  color: #ffffff;
   font-weight: 500;
   word-break: break-all;
 }
 
 .value.price {
   font-size: 1.4rem;
-  color: #667eea;
+  color: #ed1c24;
   font-weight: bold;
 }
 
 .value.tracking {
   font-family: 'Courier New', monospace;
-  background-color: #f5f5f5;
+  background-color: #1a1a1a;
   padding: 0.5rem;
   border-radius: 4px;
+  border: 1px solid #333333;
 }
 
 .status {
@@ -117,28 +129,33 @@
 }
 
 .status-placed {
-  background-color: #e3f2fd;
-  color: #1976d2;
+  background-color: rgba(237, 28, 36, 0.15);
+  color: #ed1c24;
+  border: 1px solid rgba(237, 28, 36, 0.3);
 }
 
 .status-paid {
-  background-color: #f0f7ff;
-  color: #667eea;
+  background-color: rgba(237, 28, 36, 0.15);
+  color: #ed1c24;
+  border: 1px solid rgba(237, 28, 36, 0.3);
 }
 
 .status-shipped {
-  background-color: #fff3e0;
-  color: #f57c00;
+  background-color: rgba(255, 193, 7, 0.15);
+  color: #ffc107;
+  border: 1px solid rgba(255, 193, 7, 0.3);
 }
 
 .status-delivered {
-  background-color: #e8f5e9;
-  color: #388e3c;
+  background-color: rgba(40, 167, 69, 0.15);
+  color: #28a745;
+  border: 1px solid rgba(40, 167, 69, 0.3);
 }
 
 .status-completed {
-  background-color: #e8f5e9;
-  color: #51cf66;
+  background-color: rgba(40, 167, 69, 0.15);
+  color: #28a745;
+  border: 1px solid rgba(40, 167, 69, 0.3);
 }
 
 .timeline {
@@ -153,7 +170,7 @@
   top: 0;
   bottom: 0;
   width: 2px;
-  background-color: #e0e0e0;
+  background-color: #333333;
 }
 
 .timeline-item {
@@ -166,21 +183,23 @@
 .timeline-marker {
   width: 80px;
   height: 80px;
-  background-color: #e0e0e0;
+  background-color: #333333;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  color: #999;
+  color: #666666;
   font-size: 1.2rem;
   flex-shrink: 0;
   z-index: 1;
+  border: 2px solid #444444;
 }
 
 .timeline-item.completed .timeline-marker {
-  background-color: #51cf66;
+  background: linear-gradient(135deg, #ed1c24, #c41019);
   color: white;
+  border-color: #ed1c24;
 }
 
 .timeline-content {
@@ -190,13 +209,13 @@
 
 .timeline-content h3 {
   margin: 0 0 0.5rem 0;
-  color: #333;
+  color: #ffffff;
   font-size: 1.1rem;
 }
 
 .timeline-content p {
   margin: 0;
-  color: #666;
+  color: #888888;
   font-size: 0.95rem;
 }
 
@@ -204,11 +223,30 @@
   text-align: center;
   margin-top: 2rem;
   padding: 2rem;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: #222222;
+  border-radius: 12px;
+  border: 1px solid #333333;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .actions .btn {
   min-width: 200px;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.actions .btn-primary {
+  background: linear-gradient(135deg, #ed1c24, #c41019);
+  color: white;
+}
+
+.actions .btn-primary:hover {
+  background: linear-gradient(135deg, #ff4757, #ed1c24);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(237, 28, 36, 0.4);
 }

@@ -402,7 +402,7 @@ const CheckoutPage = () => {
 
                     <div className="d-grid mt-4">
                       <button type="submit" className="btn btn-lg btn-primary" style={{
-                        background: 'linear-gradient(135deg, #667eea, #764ba2)',
+                        background: 'linear-gradient(135deg, #ed1c24, #c41019)',
                         border: 'none',
                         padding: '1rem'
                       }}>
@@ -565,7 +565,7 @@ const CheckoutPage = () => {
           {/* Order Summary Sidebar */}
           <div className="col-lg-4">
             <div className="card shadow-sm border-0 sticky-top" style={{top: '100px'}}>
-              <div className="card-header" style={{background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white'}}>
+              <div className="card-header" style={{background: 'linear-gradient(135deg, #ed1c24, #c41019)', color: 'white'}}>
                 <h4 className="mb-0">
                   <i className="bi bi-receipt me-2"></i>
                   Order Summary
