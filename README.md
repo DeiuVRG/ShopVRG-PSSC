@@ -49,6 +49,7 @@ Proiectul respectă:
 ### Domain Events
 - `OrderPlacedEvent` - Comanda a fost plasata cu succes
 - `OrderPlacementFailedEvent` - Plasarea comenzii a esuat
+- `OrderPendingPaymentEvent` - Comanda in asteptarea confirmarii platii
 - `PaymentProcessedEvent` - Plata a fost procesata
 - `PaymentFailedEvent` - Plata a esuat
 - `OrderShippedEvent` - Comanda a fost expediata
@@ -79,6 +80,7 @@ Proiectul respectă:
 - `UnvalidatedOrder`: Date brute din API, inainte de validare
 - `ValidatedOrder`: Date validate, convertite in Value Objects
 - `StockCheckedOrder`: Stoc verificat, preturi calculate
+- `PendingOrder`: Comanda in asteptarea confirmarii platii
 - `PlacedOrder`: Comanda finalizata si persistata
 - `InvalidOrder`: Comanda invalida cu lista de erori
 

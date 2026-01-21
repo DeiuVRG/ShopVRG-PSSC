@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCartStore } from '../store/cartStore';
 import { useCheckoutStore } from '../store/checkoutStore';
 import { apiClient, PlaceOrderRequest } from '../api/client';
+import PaymentProcessorModal from '../components/PaymentProcessorModal';
 import './CheckoutPage.css';
 
 const CheckoutPage = () => {
@@ -15,6 +16,14 @@ const CheckoutPage = () => {
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Payment processor modal state
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [pendingOrderData, setPendingOrderData] = useState<{
+    orderId: string;
+    totalPrice: number;
+    cardHolderName: string;
+  } | null>(null);
 
   // Shipping form state
   const [shippingForm, setShippingForm] = useState({
@@ -108,15 +117,40 @@ const CheckoutPage = () => {
         customerEmail: shippingForm.customerEmail,
       });
 
+      // Store pending data and show payment processor modal
+      setPendingOrderData({
+        orderId: orderResponse.orderId,
+        totalPrice: orderResponse.totalPrice, // Use order total from backend, not with tax
+        cardHolderName: paymentForm.cardHolderName,
+      });
+      setShowPaymentModal(true);
+      setLoading(false);
+    } catch (err: any) {
+      setError(
+        err.response?.data?.message || 'Failed to place order. Please try again.'
+      );
+      console.error('Order placement error:', err);
+      setLoading(false);
+    }
+  };
+
+  const handleConfirmPayment = async () => {
+    if (!pendingOrderData) return;
+
+    try {
+      console.log('Starting payment confirmation for order:', pendingOrderData.orderId);
+      
       // Step 2: Process Payment
       const paymentResponse = await apiClient.processPayment({
-        orderId: orderResponse.orderId,
-        amount: totalPrice,
+        orderId: pendingOrderData.orderId,
+        amount: pendingOrderData.totalPrice,
         cardNumber: paymentForm.cardNumber,
         cardHolderName: paymentForm.cardHolderName,
         expiryDate: paymentForm.expiryDate,
         cvv: paymentForm.cvv,
       });
+
+      console.log('Payment processed:', paymentResponse);
 
       setPayment({
         paymentId: paymentResponse.paymentId,
@@ -129,9 +163,11 @@ const CheckoutPage = () => {
 
       // Step 3: Ship Order
       const shipmentResponse = await apiClient.shipOrder({
-        orderId: orderResponse.orderId,
+        orderId: pendingOrderData.orderId,
         carrier: selectedCarrier,
       });
+
+      console.log('Shipment created:', shipmentResponse);
 
       setShipment({
         id: shipmentResponse.id,
@@ -144,19 +180,36 @@ const CheckoutPage = () => {
 
       // Clear cart and go to confirmation
       clearCart();
+      console.log('Navigating to order confirmation...');
       navigate('/order-confirmation');
     } catch (err: any) {
-      setError(
-        err.response?.data?.message || 'Failed to process order. Please try again.'
-      );
-      console.error('Checkout error:', err);
-    } finally {
-      setLoading(false);
+      const errorMsg =
+        err.response?.data?.message || err.message || 'Failed to process payment. Please try again.';
+      console.error('Payment processing error:', err);
+      setError(errorMsg);
+      setShowPaymentModal(false);
+      setPendingOrderData(null);
     }
+  };
+
+  const handleCancelPayment = () => {
+    setShowPaymentModal(false);
+    setPendingOrderData(null);
   };
 
   return (
     <div className="checkout-page">
+      {/* Payment Processor Modal */}
+      <PaymentProcessorModal
+        isOpen={showPaymentModal}
+        orderId={pendingOrderData?.orderId || ''}
+        amount={pendingOrderData?.totalPrice || 0}
+        cardHolderName={pendingOrderData?.cardHolderName || ''}
+        isLoading={loading}
+        onConfirmPayment={handleConfirmPayment}
+        onCancel={handleCancelPayment}
+      />
+
       <div className="container">
         <h1 className="text-center mb-5">
           <i className="bi bi-bag-check-fill me-3"></i>

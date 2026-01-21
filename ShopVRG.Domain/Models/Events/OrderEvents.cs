@@ -41,6 +41,40 @@ public sealed record OrderPlacedEvent : IOrderEvent
 }
 
 /// <summary>
+/// Pending event - Order created but awaiting payment confirmation
+/// This event is published when the order is first created and stock is reserved
+/// The OrderPlacedEvent will be published after payment is confirmed
+/// </summary>
+public sealed record OrderPendingPaymentEvent : IOrderEvent
+{
+    public OrderId OrderId { get; }
+    public CustomerName CustomerName { get; }
+    public CustomerEmail CustomerEmail { get; }
+    public ShippingAddress ShippingAddress { get; }
+    public IReadOnlyList<OrderLineDto> OrderLines { get; }
+    public Price TotalPrice { get; }
+    public DateTime CreatedAt { get; }
+
+    internal OrderPendingPaymentEvent(
+        OrderId orderId,
+        CustomerName customerName,
+        CustomerEmail customerEmail,
+        ShippingAddress shippingAddress,
+        IEnumerable<OrderLineDto> orderLines,
+        Price totalPrice,
+        DateTime createdAt)
+    {
+        OrderId = orderId;
+        CustomerName = customerName;
+        CustomerEmail = customerEmail;
+        ShippingAddress = shippingAddress;
+        OrderLines = orderLines.ToList().AsReadOnly();
+        TotalPrice = totalPrice;
+        CreatedAt = createdAt;
+    }
+}
+
+/// <summary>
 /// Order line DTO for events
 /// </summary>
 public sealed record OrderLineDto(
@@ -85,6 +119,20 @@ public static class OrderEventExtensions
                     l.LineTotal.Value)),
                 placed.TotalPrice,
                 placed.PlacedAt),
+
+            PendingOrder pending => new OrderPendingPaymentEvent(
+                pending.OrderId,
+                pending.CustomerName,
+                pending.CustomerEmail,
+                pending.ShippingAddress,
+                pending.OrderLines.Select(l => new OrderLineDto(
+                    l.ProductCode.Value,
+                    l.ProductName.Value,
+                    l.Quantity.Value,
+                    l.UnitPrice.Value,
+                    l.LineTotal.Value)),
+                pending.TotalPrice,
+                pending.CreatedAt),
 
             InvalidOrder invalid => new OrderPlacementFailedEvent(invalid.Reasons),
 
